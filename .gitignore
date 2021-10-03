@@ -4,8 +4,11 @@
 /compile
 /config.h
 /config.h.in
+/config.guess
 /config.log
 /config.status
+/config.sub
+/configure~
 /depcomp
 /hebcal
 /hebcal.1
@@ -15,6 +18,7 @@
 /strings_*.c
 /strings_*.gperf
 /test-driver
+/tests/Makefile.in
 /translations.c
 /translations.h
 Makefile
