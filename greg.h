@@ -5,8 +5,8 @@
 #define __GREG__
 #include <time.h>
 
-#define LEAP(x) (!((x) % 4) && ( ((x) % 100) || !((x) % 400)))
-#define DAYS_IN(x) (LEAP((x))?366:365)
+#define LEAP(x) (!((x) % 4) && (((x) % 100) || !((x) % 400)))
+#define DAYS_IN(x) (LEAP((x)) ? 366 : 365)
 
 #define JAN 1
 #define FEB 2
@@ -29,25 +29,25 @@
 #define FRI 5
 #define SAT 6
 
-extern const char * eMonths[];
-extern int MonthLengths[][13] ;
-extern const char * DayNames[] ;
-extern const char * ShortDayNames[];
+extern const char *eMonths[];
+extern int MonthLengths[][13];
+extern const char *DayNames[];
+extern const char *ShortDayNames[];
 
 typedef struct dateStruct {
-    int mm;	/* months: jan=1, DEC = 12 */
-    int dd;	/* day of month 1,31 */
-    int yy;	/* years since year 1 BCE i.e. -1 = 2 BCE */
+  int mm; /* months: jan=1, DEC = 12 */
+  int dd; /* day of month 1,31 */
+  int yy; /* years since year 1 BCE i.e. -1 = 2 BCE */
 } date_t;
 
 int getMonthLength(int year, int month);
-int dayOfYear( date_t );
-long greg2abs( date_t );
+int dayOfYear(date_t);
+long greg2abs(date_t);
 long time2abs(const time_t *);
 date_t abs2greg(long);
 void decDate(date_t *, long);
 void incDate(date_t *, long);
 int dayOfWeek(date_t);
 void setDate(date_t *);
-long day_on_or_before(int,long);
+long day_on_or_before(int, long);
 #endif
