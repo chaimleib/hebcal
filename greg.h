@@ -3,6 +3,7 @@
 */
 #ifndef __GREG__
 #define __GREG__
+#include <time.h>
 
 #define LEAP(x) (!((x) % 4) && ( ((x) % 100) || !((x) % 400)))
 #define DAYS_IN(x) (LEAP((x))?366:365)
@@ -42,6 +43,7 @@ typedef struct dateStruct {
 int getMonthLength(int year, int month);
 int dayOfYear( date_t );
 long greg2abs( date_t );
+long time2abs(const time_t *);
 date_t abs2greg(long);
 void decDate(date_t *, long);
 void incDate(date_t *, long);
