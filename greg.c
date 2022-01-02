@@ -87,8 +87,16 @@ long int greg2abs(date_t d) /* "absolute date" */
  * The Gregorian date Sunday, December 31, 1 BC is imaginary.
  */
 long int time2abs(const time_t *tp) {
+  return tm2abs(localtime(tp));
+}
+
+/*
+ * The number of days elapsed between the Gregorian date 12/31/1 BC and DATE.
+ * The Gregorian date Sunday, December 31, 1 BC is imaginary.
+ */
+long int tm2abs(const struct tm *in_day) {
   double secs;
-  struct tm epoch_tm, *in_day, day_tm;
+  struct tm epoch_tm, day_tm;
   time_t epoch, day;
 
   epoch_tm.tm_sec = 0;
@@ -103,7 +111,6 @@ long int time2abs(const time_t *tp) {
   assert(epoch != -1);
 
   // copy tp to day, but clear the time and leave the date
-  in_day = localtime(tp);
   day_tm.tm_sec = 0;
   day_tm.tm_min = 0;
   day_tm.tm_hour = 0;

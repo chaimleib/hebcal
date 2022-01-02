@@ -44,6 +44,7 @@ int getMonthLength(int year, int month);
 int dayOfYear(date_t);
 long greg2abs(date_t);
 long time2abs(const time_t *);
+long tm2abs(const struct tm *);
 date_t abs2greg(long);
 void decDate(date_t *, long);
 void incDate(date_t *, long);
