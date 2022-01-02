@@ -199,17 +199,13 @@ int dayOfWeek(date_t d1)			/* sunday = 0 */
 
 void setDate ( date_t *d )
 {
-/*
-   asctime() converts a time value contained in a tm  structure
-   to a 26-character string of the form:
-   Sun Sep 16 01:03:52 1973\n\0
-   Each field  has  a  constant  width.   asctime()  returns  a
-   pointer to the string.
- */
+  // asctime() converts a time value contained in a tm  structure to a 26-character string of the form:
+   /* Sun Sep 16 01:03:52 1973\n\0 */
+   // Each field has a constant width. asctime() returns a pointer to the string.
 
+// FIX: removing these decls, but need to start doing compilation platform checks to ensure that these aren't necessary.
 /*
-FIX: removing these decls, but need to start doing compilation platofrm checks to ensure that these aren't necessary.
-time_t time ();
+    time_t time ();
     char *ctime( const time_t * );
 */
     time_t secs = time (NULL);
