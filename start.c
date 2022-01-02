@@ -421,8 +421,7 @@ void handleArgs(int argc, char *argv[]) {
     case 'd': /* print hebrew date */
       printHebDates_sw = 1;
       break;
-    case 'D': /* print hebrew date when there's */
-      /* something else to print */
+    case 'D': /* print hebrew date when there's something else to print */
       printSomeHebDates_sw = 1;
       break;
     case 'I': /* input file */
