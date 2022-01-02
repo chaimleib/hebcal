@@ -25,17 +25,19 @@
 
 /* the following need to be #defined: CITY ENV_CITY ENV_OPTS */
 
-#include <stdio.h>
 #include <ctype.h>
-#include "config.h"
-#include <string.h>
-#include <math.h>
-#include "hebcal.h"
-#include "common.h"
 #include <errno.h>
 #include <getopt.h>
-#include "danlib.h"
+#include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+#include "config.h"
+#include "hebcal.h"
+#include "common.h"
+#include "danlib.h"
 #include "cities.h"
 #include "translations.h"
 
@@ -343,7 +345,8 @@ static void shortUsage() {
 
 void handleArgs(int argc, char *argv[])
 {
-   date_t greg_today;
+   time_t now;
+   struct tm *greg_today;
    char **remain;
    size_t remain_count;
    char *cityNameArg = NULL;
@@ -401,8 +404,9 @@ void handleArgs(int argc, char *argv[])
    int c;
    int option_index = 0;
 
-
-   setDate(&greg_today);        /* keep the current greg. date here */
+   if (time(&now) == -1)    /* keep the current greg. date here */
+     die("unable to access time", "");
+   greg_today = localtime(&now);
 
    while ((c = getopt_long(argc, argv, "ab:cC:dDeEFghHI:il:L:m:MoOrsStTwWxyY:z:Z8",
                            long_options, &option_index)) != -1) {
@@ -590,8 +594,8 @@ void handleArgs(int argc, char *argv[])
    if (today_sw) {
       printHebDates_sw = 1;
       rangeType = TODAY;
-      theMonth = greg_today.mm;    /* year and month specified */
-      theDay = greg_today.dd;      /* printc theDay of theMonth */
+      theMonth = greg_today->tm_mon + 1;    /* year and month specified */
+      theDay = greg_today->tm_mday;      /* printc theDay of theMonth */
       yearDirty = 1;
       printOmer_sw = 1;
       hebrewDates_sw = 0;
@@ -672,9 +676,9 @@ void handleArgs(int argc, char *argv[])
    {
    case 0:			/* process this year */
        if (hebrewDates_sw)
-	   theYear = abs2hebrew(greg2abs(greg_today)).yy;
+         theYear = abs2hebrew(time2abs(&now)).yy;
        else
-	   theYear = greg_today.yy;
+         theYear = greg_today->tm_year + 1900;
        break;
 
    case 1:
