@@ -1,0 +1,4 @@
+# vi: ft=yaml
+---
+BasedOnStyle: LLVM
+ColumnLimit: 90
