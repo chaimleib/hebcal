@@ -23,14 +23,13 @@
    danny@sadinoff.com
  */
 
-
+#include "greg.h"
+#include "danlib.h"
+#include "myerror.h"
 #include <assert.h>
 #include <stdio.h>
-#include "danlib.h"
-#include <time.h>
 #include <string.h>
-#include "myerror.h"
-#include "greg.h"
+#include <time.h>
 
 /* greg.c gregorian calendar module for hebrew calendar program
    By Danny Sadinoff
@@ -38,33 +37,21 @@
 
  */
 
-const char *eMonths[] =
-{
-    "UNUSED",
-    "January", "February", "March", "April", "May", "June", "July",
-    "August", "September", "October", "November", "December"
-};
+const char *eMonths[] = {"UNUSED",  "January",  "February", "March",  "April",
+                         "May",     "June",     "July",     "August", "September",
+                         "October", "November", "December"};
 
-int MonthLengths[][13] =
-{
-    {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
-    {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
-};
+int MonthLengths[][13] = {{0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+                          {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}};
 
-int getMonthLength(int year, int month)
-{
-    if (month < 0 || month > 13)
-    {
-        return 0;
-    }
-    return MonthLengths[LEAP (year)][month];
+int getMonthLength(int year, int month) {
+  if (month < 0 || month > 13) {
+    return 0;
+  }
+  return MonthLengths[LEAP(year)][month];
 }
 
-const char *ShortDayNames[] =
-{
-    "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
-};
-
+const char *ShortDayNames[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 
 /*
  *Return the day number within the year of the date DATE.
@@ -72,39 +59,34 @@ const char *ShortDayNames[] =
  *while dayOfYear({12,31,1980}) returns 366.
  */
 
-
-int dayOfYear( date_t d )
-{
-    int dOY = d.dd + 31 * (d.mm - 1);
-    if (d.mm > FEB)
-    {
-        dOY -= (4 * d.mm + 23) / 10;
-        if (LEAP (d.yy))
-            dOY++;
-    }
-    return dOY;
-}
-
-
-/*
- * The number of days elapsed between the Gregorian date 12/31/1 BC and DATE.
- * The Gregorian date Sunday, December 31, 1 BC is imaginary.
- */
-long int greg2abs( date_t d )			/* "absolute date" */
-{
-    return ((long) dayOfYear (d)	/* days this year */
-            + 365L * (long) (d.yy - 1)	/* + days in prior years */
-            + (long) ((d.yy - 1) / 4	/* + Julian Leap years */
-                      - (d.yy - 1) / 100	/* - century years */
-                      + (d.yy - 1) / 400));	/* + Gregorian leap years */
+int dayOfYear(date_t d) {
+  int dOY = d.dd + 31 * (d.mm - 1);
+  if (d.mm > FEB) {
+    dOY -= (4 * d.mm + 23) / 10;
+    if (LEAP(d.yy))
+      dOY++;
+  }
+  return dOY;
 }
 
 /*
  * The number of days elapsed between the Gregorian date 12/31/1 BC and DATE.
  * The Gregorian date Sunday, December 31, 1 BC is imaginary.
  */
-long int time2abs( const time_t *tp )
+long int greg2abs(date_t d) /* "absolute date" */
 {
+  return ((long)dayOfYear(d)             /* days this year */
+          + 365L * (long)(d.yy - 1)      /* + days in prior years */
+          + (long)((d.yy - 1) / 4        /* + Julian Leap years */
+                   - (d.yy - 1) / 100    /* - century years */
+                   + (d.yy - 1) / 400)); /* + Gregorian leap years */
+}
+
+/*
+ * The number of days elapsed between the Gregorian date 12/31/1 BC and DATE.
+ * The Gregorian date Sunday, December 31, 1 BC is imaginary.
+ */
+long int time2abs(const time_t *tp) {
   double secs;
   struct tm epoch_tm, *in_day, day_tm;
   time_t epoch, day;
@@ -112,11 +94,11 @@ long int time2abs( const time_t *tp )
   epoch_tm.tm_sec = 0;
   epoch_tm.tm_min = 0;
   epoch_tm.tm_hour = 0;
-  epoch_tm.tm_mday = 31; // 1-indexed day-of-month 31
-  epoch_tm.tm_mon = 11; // 0-indexed December
+  epoch_tm.tm_mday = 31;    // 1-indexed day-of-month 31
+  epoch_tm.tm_mon = 11;     // 0-indexed December
   epoch_tm.tm_year = -1900; // years since 1900; e.g. year 0 == 1 BCE
-  epoch_tm.tm_wday = 0; // this imaginary date was a Sunday
-  epoch_tm.tm_yday = 364; // 0-indexed, and was not a leap year
+  epoch_tm.tm_wday = 0;     // this imaginary date was a Sunday
+  epoch_tm.tm_yday = 364;   // 0-indexed, and was not a leap year
   epoch = mktime(&epoch_tm);
   assert(epoch != -1);
 
@@ -136,7 +118,7 @@ long int time2abs( const time_t *tp )
   secs = difftime(day, epoch);
   // the double arithmetic should yield a whole number, but just in case it's
   // a little off, round up by adding 0.5 and truncating in the cast.
-  return (long int) ((secs / (3600 * 24)) + 0.5);
+  return (long int)((secs / (3600 * 24)) + 0.5);
 }
 
 /*
@@ -145,8 +127,7 @@ long int time2abs( const time_t *tp )
  * Clamen, Software--Practice and Experience, Volume 23, Number 4
  * (April, 1993), pages 383-404 for an explanation.
  */
-date_t abs2greg( long theDate )
-{
+date_t abs2greg(long theDate) {
   int day, year, month, mlen;
   date_t d;
   long int d0, n400, d1, n100, d2, n4, d3, n1;
@@ -160,65 +141,60 @@ date_t abs2greg( long theDate )
   d3 = d2 % 1461L;
   n1 = d3 / 365L;
 
-  day = (int) ((d3 % 365L) + 1L);
-  year = (int) (400L * n400 + 100L * n100 + 4L * n4 + n1);
+  day = (int)((d3 % 365L) + 1L);
+  year = (int)(400L * n400 + 100L * n100 + 4L * n4 + n1);
 
-  if (4L == n100 || 4L == n1)
-    {
-      d.mm = 12;
-      d.dd = 31;
-      d.yy = year;
-      return d;
+  if (4L == n100 || 4L == n1) {
+    d.mm = 12;
+    d.dd = 31;
+    d.yy = year;
+    return d;
+  } else {
+    year++;
+    month = 1;
+    while ((mlen = MonthLengths[LEAP(year)][month]) < day) {
+      day -= mlen;
+      month++;
     }
-  else
-    {
-      year++;
-      month = 1;
-      while ((mlen = MonthLengths[LEAP (year)][month]) < day)
-	{
-	  day -= mlen;
-	  month++;
-	}
-      d.yy = year;
-      d.mm = month;
-      d.dd = day;
-      return d;
-    }
+    d.yy = year;
+    d.mm = month;
+    d.dd = day;
+    return d;
+  }
 }
 
-void incDate (date_t *dt, long n)			/* increments dt by n days */
+void incDate(date_t *dt, long n) /* increments dt by n days */
 {
-  *dt = abs2greg (greg2abs (*dt) + n);
+  *dt = abs2greg(greg2abs(*dt) + n);
 }
 
-
-int dayOfWeek(date_t d1)			/* sunday = 0 */
+int dayOfWeek(date_t d1) /* sunday = 0 */
 {
-  return (int) (greg2abs (d1) % 7L);
+  return (int)(greg2abs(d1) % 7L);
 }
 
-void setDate ( date_t *d )
-{
-  // asctime() converts a time value contained in a tm  structure to a 26-character string of the form:
-   /* Sun Sep 16 01:03:52 1973\n\0 */
-   // Each field has a constant width. asctime() returns a pointer to the string.
+void setDate(date_t *d) {
+  // asctime() converts a time value contained in a tm  structure to a 26-character string
+  // of the form:
+  /* Sun Sep 16 01:03:52 1973\n\0 */
+  // Each field has a constant width. asctime() returns a pointer to the string.
 
-// FIX: removing these decls, but need to start doing compilation platform checks to ensure that these aren't necessary.
-/*
-    time_t time ();
-    char *ctime( const time_t * );
-*/
-    time_t secs = time (NULL);
-    char *timestr = ctime (&secs);
+  // FIX: removing these decls, but need to start doing compilation platform checks to
+  // ensure that these aren't necessary.
+  /*
+      time_t time ();
+      char *ctime( const time_t * );
+  */
+  time_t secs = time(NULL);
+  char *timestr = ctime(&secs);
 
-/* portability has driven me to truly shameful code.
-   please forgive this.
- */
-    sscanf (timestr + 20, "%d", &d->yy);
-    d->mm = lookup_string( timestr + 4, eMonths, 13, 3 );
-    sscanf (timestr + 8, "%d", &d->dd);
+  /* portability has driven me to truly shameful code.
+     please forgive this.
+   */
+  sscanf(timestr + 20, "%d", &d->yy);
+  d->mm = lookup_string(timestr + 4, eMonths, 13, 3);
+  sscanf(timestr + 8, "%d", &d->dd);
 }
-
 
 /** Returns the absolute date of the DAYNAME on or before absolute DATE.
  * DAYNAME=0 means Sunday, DAYNAME=1 means Monday, and so on.
@@ -230,12 +206,9 @@ void setDate ( date_t *d )
  * date d, and applying it to d+7 gives the DAYNAME following absolute date d.
 
 **/
-long day_on_or_before( int day_of_week, long date)
-{
-  return date - ((date - (long) day_of_week) % 7L);
+long day_on_or_before(int day_of_week, long date) {
+  return date - ((date - (long)day_of_week) % 7L);
 }
-
-
 
 /** (defun calendar-nth-named-day (n dayname month year &optional day)
    "The date of Nth DAYNAME in MONTH, YEAR before/after optional DAY.
