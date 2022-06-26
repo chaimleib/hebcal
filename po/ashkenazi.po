@@ -164,9 +164,6 @@ msgstr "Yisro"
 msgid "Asara B'Tevet"
 msgstr "Asara B'Teives"
 
-msgid "Candle lighting"
-msgstr "Licht bentshen"
-
 msgid "Days of the Omer"
 msgstr "Omer"
 
@@ -371,6 +368,9 @@ msgstr "Mikvaos"
 msgid "Alot HaShachar"
 msgstr "Alos HaShachar"
 
+msgid "Sunrise"
+msgstr "Netz HaChamah"
+
 msgid "Kriat Shema, sof zeman"
 msgstr "Krias Shema, sof zman"
 
@@ -379,6 +379,12 @@ msgstr "Tefilah, sof zman"
 
 msgid "Chatzot hayom"
 msgstr "Chatzos"
+
+msgid "Candle lighting"
+msgstr "Licht bentshen"
+
+msgid "Sunset"
+msgstr "Shkiah"
 
 msgid "Tzait HaKochavim"
 msgstr "Tzeis HaKochavim"
