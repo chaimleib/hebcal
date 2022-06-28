@@ -18,6 +18,7 @@ msgstr ""
 "X-Generator: Poedit 1.8.6\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
+# == Tractates ==
 #: ../dafyomi.c:26
 msgid "Berachot"
 msgstr "Berachos"
@@ -86,9 +87,7 @@ msgstr "Kerisos"
 msgid "Midot"
 msgstr "Middos"
 
-msgid "Parashat"
-msgstr "Parshas"
-
+# == Parshas ==
 msgid "Achrei Mot"
 msgstr "Acharei Mos"
 
@@ -128,6 +127,9 @@ msgstr "Matos"
 msgid "Miketz"
 msgstr "Mikeitz"
 
+msgid "Parashat"
+msgstr "Parshas"
+
 msgid "Sh'lach"
 msgstr "Shelach"
 
@@ -161,6 +163,7 @@ msgstr "Vezos Habrachah"
 msgid "Yitro"
 msgstr "Yisro"
 
+# == Holidays ==
 msgid "Asara B'Tevet"
 msgstr "Asara B'Teives"
 
@@ -202,18 +205,6 @@ msgstr "Pesach V (CH\"M)"
 
 msgid "Pesach VI (CH''M)"
 msgstr "Pesach VI (CH\"M)"
-
-msgid "Iyyar"
-msgstr "Iyar"
-
-msgid "Sh'vat"
-msgstr "Shevat"
-
-msgid "Tamuz"
-msgstr "Tammuz"
-
-msgid "Tevet"
-msgstr "Teves"
 
 msgid "Rosh Hashana"
 msgstr "Rosh Hashanah"
@@ -317,12 +308,23 @@ msgstr "Tisha B'Av (observed)"
 msgid "Tu BiShvat"
 msgstr "Tu B'Shevat"
 
-msgid "Tzom Gedaliah"
-msgstr "Tzom Gedaliah"
+# == Months ==
+msgid "Iyyar"
+msgstr "Iyar"
 
+msgid "Sh'vat"
+msgstr "Shevat"
+
+msgid "Tamuz"
+msgstr "Tammuz"
+
+msgid "Tevet"
+msgstr "Teves"
+
+# == Mishnas ==
 # Mishna Berachot
 msgid "Berakhot"
-msgstr "Berakhos"
+msgstr "Berachos"
 
 # Mishna Sheviit
 msgid "Sheviit"
@@ -346,7 +348,7 @@ msgstr "Avos"
 
 # Mishna Bekhorot
 msgid "Bekhorot"
-msgstr "Bekhoros"
+msgstr "Bechoros"
 
 # Mishna Middot
 msgid "Middot"
@@ -364,7 +366,7 @@ msgstr "Tahoros"
 msgid "Mikvaot"
 msgstr "Mikvaos"
 
-# hebcal/hebcal zmanim (unused by hebcal/hebcal-es6)
+# == Zmanim == (unused by hebcal/hebcal-es6)
 msgid "Alot HaShachar"
 msgstr "Alos HaShachar"
 
