@@ -646,7 +646,7 @@ void handleArgs(int argc, char *argv[]) {
   {
   case 0: /* process this year */
     if (hebrewDates_sw)
-      theYear = abs2hebrew(time2abs(&now))->yy;
+      theYear = abs2hebrew(greg2abs(greg_today))->yy;
     else
       theYear = greg_today->tm_year + 1900;
     break;

@@ -26,7 +26,6 @@
 #include "greg.h"
 #include "danlib.h"
 #include "myerror.h"
-#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -73,7 +72,6 @@ int dayOfYear(const struct tm *date) {
  * Given a Gregorian date, returns the "absolute date", which is the number of
  * days elapsed between the Gregorian date 12/31/1 BC and DATE.
  * The Gregorian date Sunday, December 31, 1 BC is imaginary.
- * Uses whole-day calculations.
  */
 long int greg2abs(const struct tm *date) {
   const long y = (long)date->tm_year + 1900L;
@@ -82,51 +80,6 @@ long int greg2abs(const struct tm *date) {
           + ((y - 1) / 4        /* + Julian Leap years */
              - (y - 1) / 100    /* - century years */
              + (y - 1) / 400)); /* + Gregorian leap years */
-}
-
-/*
- * The number of days elapsed between the Gregorian date 12/31/1 BC and DATE.
- * The Gregorian date Sunday, December 31, 1 BC is imaginary.
- */
-long int time2abs(const time_t *tp) { return tm2abs(localtime(tp)); }
-
-/*
- * The number of days elapsed between the Gregorian date 12/31/1 BC and DATE.
- * The Gregorian date Sunday, December 31, 1 BC is imaginary.
- * Uses seconds calculations and rounds to the nearest day.
- */
-long int tm2abs(const struct tm *in_day) {
-  double secs;
-  struct tm epoch_tm, day_tm;
-  time_t epoch, day;
-
-  epoch_tm.tm_sec = 0;
-  epoch_tm.tm_min = 0;
-  epoch_tm.tm_hour = 0;
-  epoch_tm.tm_mday = 31;    // 1-indexed day-of-month 31
-  epoch_tm.tm_mon = 11;     // 0-indexed December
-  epoch_tm.tm_year = -1900; // years since 1900; e.g. tm_year -1900 == year 0 == 1 BCE
-  epoch_tm.tm_wday = 0;     // this imaginary date was a Sunday
-  epoch_tm.tm_yday = 364;   // 0-indexed, and was not a leap year
-  epoch = mktime(&epoch_tm);
-  assert(epoch != -1);
-
-  // copy tp to day, but clear the time and leave the date
-  day_tm.tm_sec = 0;
-  day_tm.tm_min = 0;
-  day_tm.tm_hour = 0;
-  day_tm.tm_mday = in_day->tm_mday;
-  day_tm.tm_mon = in_day->tm_mon;
-  day_tm.tm_year = in_day->tm_year;
-  day_tm.tm_wday = in_day->tm_wday;
-  day_tm.tm_yday = in_day->tm_yday;
-  day = mktime(&day_tm);
-  assert(day != -1);
-
-  secs = difftime(day, epoch);
-  // the double arithmetic should yield a whole number, but just in case it's
-  // a little off, round up by adding 0.5 and truncating in the cast.
-  return (long int)((secs / (3600 * 24)) + 0.5);
 }
 
 /*
