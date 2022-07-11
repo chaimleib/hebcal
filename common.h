@@ -38,8 +38,8 @@ typedef struct molad {
 } molad_t;
 
 molad_t get_molad(int, int);
-date_t abs2hebrew(long);
-long hebrew2abs(date_t);
+struct hebdate *abs2hebrew(long);
+long hebrew2abs(const struct hebdate *);
 int days_in_heb_year(int);
 int long_cheshvan(int);
 int short_kislev(int);

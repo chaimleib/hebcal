@@ -149,7 +149,7 @@ static long int first_saturday;
 /* sets static globals based on this year. */
 void reset_sedra(int hebYr) /* the hebrew year */
 {
-  date_t tempDt;
+  struct hebdate tempDt;
   int long_c, short_k, rosh_hashana_day, type;
   long int rosh_hashana;
   size_t theSedraArraySize = 0; /* avoid warning */
@@ -168,7 +168,7 @@ void reset_sedra(int hebYr) /* the hebrew year */
   tempDt.dd = 1;
   tempDt.mm = TISHREI;
   tempDt.yy = hebYr;
-  rosh_hashana = hebrew2abs(tempDt);
+  rosh_hashana = hebrew2abs(&tempDt);
   rosh_hashana_day = (int)(rosh_hashana % 7L);
 
   /* find the first saturday on or after Rosh Hashana */
@@ -202,8 +202,13 @@ void reset_sedra(int hebYr) /* the hebrew year */
       break;
     case THU:
       if (type == REGULAR) {
-        theSedraArray = israel_sw ? Thu_normal_Israel : Thu_normal;
-        theSedraArraySize = israel_sw ? sizeof(Thu_normal_Israel) : sizeof(Thu_normal);
+        if (israel_sw) {
+          theSedraArray = Thu_normal_Israel;
+          theSedraArraySize = sizeof(Thu_normal_Israel);
+        } else {
+          theSedraArray = Thu_normal;
+          theSedraArraySize = sizeof(Thu_normal);
+        }
       } else if (type == COMPLETE) {
         theSedraArray = Thu_long;
         theSedraArraySize = sizeof(Thu_long);
@@ -220,26 +225,43 @@ void reset_sedra(int hebYr) /* the hebrew year */
         theSedraArray = Sat_short_leap;
         theSedraArraySize = sizeof(Sat_short_leap);
       } else if (type == COMPLETE) {
-        theSedraArray = israel_sw ? Sat_short_leap : Sat_long_leap;
-        theSedraArraySize = israel_sw ? sizeof(Sat_short_leap) : sizeof(Sat_long_leap);
+        if (israel_sw) {
+          theSedraArray = Sat_short_leap;
+          theSedraArraySize = sizeof(Sat_short_leap);
+        } else {
+          theSedraArray = Sat_long_leap;
+          theSedraArraySize = sizeof(Sat_long_leap);
+        }
       }
       break;
     case MON:
       if (type == INCOMPLETE) {
-        theSedraArray = israel_sw ? Mon_short_leap_Israel : Mon_short_leap;
-        theSedraArraySize =
-            israel_sw ? sizeof(Mon_short_leap_Israel) : sizeof(Mon_short_leap);
+        if (israel_sw) {
+          theSedraArray = Mon_short_leap_Israel;
+          theSedraArraySize = sizeof(Mon_short_leap_Israel);
+        } else {
+          theSedraArray = Mon_short_leap;
+          theSedraArraySize = sizeof(Mon_short_leap);
+        }
       } else if (type == COMPLETE) {
-        theSedraArray = israel_sw ? Mon_long_leap_Israel : Mon_long_leap;
-        theSedraArraySize =
-            israel_sw ? sizeof(Mon_long_leap_Israel) : sizeof(Mon_long_leap);
+        if (israel_sw) {
+          theSedraArray = Mon_long_leap_Israel;
+          theSedraArraySize = sizeof(Mon_long_leap_Israel);
+        } else {
+          theSedraArray = Mon_long_leap;
+          theSedraArraySize = sizeof(Mon_long_leap);
+        }
       }
       break;
     case TUE:
       if (type == REGULAR) {
-        theSedraArray = israel_sw ? Mon_long_leap_Israel : Mon_long_leap;
-        theSedraArraySize =
-            israel_sw ? sizeof(Mon_long_leap_Israel) : sizeof(Mon_long_leap);
+        if (israel_sw) {
+          theSedraArray = Mon_long_leap_Israel;
+          theSedraArraySize = sizeof(Mon_long_leap_Israel);
+        } else {
+          theSedraArray = Mon_long_leap;
+          theSedraArraySize = sizeof(Mon_long_leap);
+        }
       }
       break;
     case THU:
@@ -264,7 +286,6 @@ void reset_sedra(int hebYr) /* the hebrew year */
    it can't find the parsha for some reason.
  */
 int sedra(long absDate, char *buf, int buf_len) {
-
   int index;
   int weekNum;
 
@@ -286,11 +307,11 @@ int sedra(long absDate, char *buf, int buf_len) {
 
   *buf = '\0'; /* reset the return buffer */
 
-  if (index >= 0)
+  if (index >= 0) {
     strncpy(buf, LANGUAGE2(sedrot[index]), buf_len);
-  else if (-1 == index)
+  } else if (-1 == index) {
     return 0;
-  else {
+  } else {
     int i = U(index); /* undouble the parsha */
     sprintf(buf, "%s-%s", LANGUAGE2(sedrot[i]), LANGUAGE2(sedrot[i + 1]));
   }

@@ -646,7 +646,7 @@ void handleArgs(int argc, char *argv[]) {
   {
   case 0: /* process this year */
     if (hebrewDates_sw)
-      theYear = abs2hebrew(time2abs(&now)).yy;
+      theYear = abs2hebrew(time2abs(&now))->yy;
     else
       theYear = greg_today->tm_year + 1900;
     break;
@@ -778,7 +778,8 @@ int tokenize(char *str, int *pargc, char *argv[]) {
 }
 
 int main(int argc, char *argv[]) {
-  date_t tempDate;
+  struct tm gdate;
+  struct hebdate hdate;
   long startAbs, endAbs;
   char *envStr;
   int envArgc;
@@ -793,67 +794,74 @@ int main(int argc, char *argv[]) {
     for (i = 1; i < argc; i++) /* append argv onto envArgv  */
       envArgv[envArgc++] = argv[i];
     handleArgs(envArgc, envArgv);
-  } else
+  } else {
     handleArgs(argc, argv);
+  }
 
-  tempDate.yy = theYear;
   if (theYear < (hebrewDates_sw ? 3761 : 1))
     die("Sorry, hebcal can only handle dates in the common era.", "");
 
   switch (rangeType) {
   case TODAY:
     printHebDates_sw = 1;
-    tempDate.dd = theDay;
-    tempDate.mm = theMonth;
-    tempDate.yy = theYear;
-    startAbs = endAbs = greg2abs(tempDate);
+    gdate.tm_mday = theDay;
+    gdate.tm_mon = theMonth - 1;
+    gdate.tm_year = theYear - 1900;
+    startAbs = endAbs = greg2abs(&gdate);
     break;
   case DAY:
     printHebDates_sw = 1;
-    tempDate.dd = theDay;
-    tempDate.mm = theMonth;
-    tempDate.yy = theYear;
-    if (hebrewDates_sw)
-      startAbs = endAbs = hebrew2abs(tempDate);
-    else
-      startAbs = endAbs = greg2abs(tempDate);
+    if (hebrewDates_sw) {
+      hdate.dd = theDay;
+      hdate.mm = theMonth;
+      hdate.yy = theYear;
+      startAbs = endAbs = hebrew2abs(&hdate);
+    } else {
+      gdate.tm_mday = theDay;
+      gdate.tm_mon = theMonth - 1;
+      gdate.tm_year = theYear - 1900;
+      startAbs = endAbs = greg2abs(&gdate);
+    }
     break;
   case MONTH:
-    tempDate.dd = 1;
-    tempDate.mm = theMonth;
-    tempDate.yy = theYear;
     if (hebrewDates_sw) {
-      startAbs = hebrew2abs(tempDate);
-      tempDate.dd = max_days_in_heb_month(tempDate.mm, tempDate.yy);
-      endAbs = hebrew2abs(tempDate);
+      hdate.dd = 1;
+      hdate.mm = theMonth;
+      hdate.yy = theYear;
+      startAbs = hebrew2abs(&hdate);
+      hdate.dd = max_days_in_heb_month(hdate.mm, hdate.yy);
+      endAbs = hebrew2abs(&hdate);
     } else {
-      startAbs = greg2abs(tempDate);
-      tempDate.dd = getMonthLength(theYear, theMonth);
-      endAbs = greg2abs(tempDate);
+      gdate.tm_mday = 1;
+      gdate.tm_mon = theMonth - 1;
+      gdate.tm_year = theYear - 1900;
+      startAbs = greg2abs(&gdate);
+      gdate.tm_mday = getMonthLength(theYear, theMonth);
+      endAbs = greg2abs(&gdate);
     }
     break;
 
   case YEAR:
     if (hebrewDates_sw) {
-      tempDate.dd = 1;
-      tempDate.mm = TISHREI;
-      tempDate.yy = theYear;
-      startAbs = hebrew2abs(tempDate);
+      hdate.dd = 1;
+      hdate.mm = TISHREI;
+      hdate.yy = theYear;
+      startAbs = hebrew2abs(&hdate);
       /* start yearly calendar with the day before RH (i.e. Erev
        * Rosh Hashanah)
        */
       startAbs--;
 
-      tempDate.yy += numYears;
-      endAbs = hebrew2abs(tempDate) - 1;
+      hdate.yy += numYears;
+      endAbs = hebrew2abs(&hdate) - 1;
     } else {
-      tempDate.dd = 1;
-      tempDate.mm = JAN;
-      tempDate.yy = theYear;
-      startAbs = greg2abs(tempDate);
+      gdate.tm_mday = 1;
+      gdate.tm_mon = 0;
+      gdate.tm_year = theYear - 1900;
+      startAbs = greg2abs(&gdate);
 
-      tempDate.yy += numYears;
-      endAbs = greg2abs(tempDate) - 1;
+      gdate.tm_year += numYears;
+      endAbs = greg2abs(&gdate) - 1;
     }
     break;
 
@@ -864,9 +872,9 @@ int main(int argc, char *argv[]) {
     startAbs = endAbs = 0;
   }
 
-  tempDate = abs2hebrew(startAbs);
+  hdate = *abs2hebrew(startAbs);
   if (ok_to_run) {
-    init_holidays(tempDate.yy); /* load the holiday array */
+    init_holidays(hdate.yy); /* load the holiday array */
     main_calendar(startAbs, endAbs);
 
     return 0; /* success!  Kol hakavod to thorough programmers */

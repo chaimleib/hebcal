@@ -59,27 +59,29 @@ const char *ShortDayNames[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
  *while dayOfYear({12,31,1980}) returns 366.
  */
 
-int dayOfYear(date_t d) {
-  int dOY = d.dd + 31 * (d.mm - 1);
-  if (d.mm > FEB) {
-    dOY -= (4 * d.mm + 23) / 10;
-    if (LEAP(d.yy))
+int dayOfYear(const struct tm *date) {
+  int dOY = date->tm_mday + 31 * date->tm_mon;
+  if (date->tm_mon > FEB) {
+    dOY -= (4 * date->tm_mon + 27) / 10;
+    if (LEAP(date->tm_year))
       dOY++;
   }
   return dOY;
 }
 
 /*
- * The number of days elapsed between the Gregorian date 12/31/1 BC and DATE.
+ * Given a Gregorian date, returns the "absolute date", which is the number of
+ * days elapsed between the Gregorian date 12/31/1 BC and DATE.
  * The Gregorian date Sunday, December 31, 1 BC is imaginary.
+ * Uses whole-day calculations.
  */
-long int greg2abs(date_t d) /* "absolute date" */
-{
-  return ((long)dayOfYear(d)             /* days this year */
-          + 365L * (long)(d.yy - 1)      /* + days in prior years */
-          + (long)((d.yy - 1) / 4        /* + Julian Leap years */
-                   - (d.yy - 1) / 100    /* - century years */
-                   + (d.yy - 1) / 400)); /* + Gregorian leap years */
+long int greg2abs(const struct tm *date) {
+  const long y = (long)date->tm_year + 1900L;
+  return ((long)dayOfYear(date) /* days this year */
+          + 365L * (y - 1)      /* + days in prior years */
+          + ((y - 1) / 4        /* + Julian Leap years */
+             - (y - 1) / 100    /* - century years */
+             + (y - 1) / 400)); /* + Gregorian leap years */
 }
 
 /*
@@ -91,6 +93,7 @@ long int time2abs(const time_t *tp) { return tm2abs(localtime(tp)); }
 /*
  * The number of days elapsed between the Gregorian date 12/31/1 BC and DATE.
  * The Gregorian date Sunday, December 31, 1 BC is imaginary.
+ * Uses seconds calculations and rounds to the nearest day.
  */
 long int tm2abs(const struct tm *in_day) {
   double secs;
@@ -102,7 +105,7 @@ long int tm2abs(const struct tm *in_day) {
   epoch_tm.tm_hour = 0;
   epoch_tm.tm_mday = 31;    // 1-indexed day-of-month 31
   epoch_tm.tm_mon = 11;     // 0-indexed December
-  epoch_tm.tm_year = -1900; // years since 1900; e.g. year 0 == 1 BCE
+  epoch_tm.tm_year = -1900; // years since 1900; e.g. tm_year -1900 == year 0 == 1 BCE
   epoch_tm.tm_wday = 0;     // this imaginary date was a Sunday
   epoch_tm.tm_yday = 364;   // 0-indexed, and was not a leap year
   epoch = mktime(&epoch_tm);
@@ -132,9 +135,9 @@ long int tm2abs(const struct tm *in_day) {
  * Clamen, Software--Practice and Experience, Volume 23, Number 4
  * (April, 1993), pages 383-404 for an explanation.
  */
-date_t abs2greg(long theDate) {
+struct tm *abs2greg(long theDate) {
+  static struct tm ret;
   int day, year, month, mlen;
-  date_t d;
   long int d0, n400, d1, n100, d2, n4, d3, n1;
 
   d0 = theDate - 1L;
@@ -150,10 +153,10 @@ date_t abs2greg(long theDate) {
   year = (int)(400L * n400 + 100L * n100 + 4L * n4 + n1);
 
   if (4L == n100 || 4L == n1) {
-    d.mm = 12;
-    d.dd = 31;
-    d.yy = year;
-    return d;
+    ret.tm_mon = 11;
+    ret.tm_mday = 31;
+    ret.tm_year = year - 1900;
+    return &ret;
   } else {
     year++;
     month = 1;
@@ -161,44 +164,26 @@ date_t abs2greg(long theDate) {
       day -= mlen;
       month++;
     }
-    d.yy = year;
-    d.mm = month;
-    d.dd = day;
-    return d;
+    ret.tm_year = year - 1900;
+    ret.tm_mon = month - 1;
+    ret.tm_mday = day;
+    return &ret;
   }
 }
 
-void incDate(date_t *dt, long n) /* increments dt by n days */
+void incDate(struct tm *dt, long n) /* increments dt by n days */
 {
-  *dt = abs2greg(greg2abs(*dt) + n);
+  *dt = *abs2greg(greg2abs(dt) + n);
 }
 
-int dayOfWeek(date_t d1) /* sunday = 0 */
+int dayOfWeek(const struct tm *date) /* sunday = 0 */
 {
-  return (int)(greg2abs(d1) % 7L);
+  return (int)(greg2abs(date) % 7L);
 }
 
-void setDate(date_t *d) {
-  // asctime() converts a time value contained in a tm  structure to a 26-character string
-  // of the form:
-  /* Sun Sep 16 01:03:52 1973\n\0 */
-  // Each field has a constant width. asctime() returns a pointer to the string.
-
-  // FIX: removing these decls, but need to start doing compilation platform checks to
-  // ensure that these aren't necessary.
-  /*
-      time_t time ();
-      char *ctime( const time_t * );
-  */
+void setDate(struct tm *date) {
   time_t secs = time(NULL);
-  char *timestr = ctime(&secs);
-
-  /* portability has driven me to truly shameful code.
-     please forgive this.
-   */
-  sscanf(timestr + 20, "%d", &d->yy);
-  d->mm = lookup_string(timestr + 4, eMonths, 13, 3);
-  sscanf(timestr + 8, "%d", &d->dd);
+  date = localtime(&secs);
 }
 
 /** Returns the absolute date of the DAYNAME on or before absolute DATE.

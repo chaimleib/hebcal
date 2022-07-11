@@ -32,21 +32,21 @@ static struct mesechta shas[] = {
     {"Arachin", 34},      {"Temurah", 34},      {"Keritot", 28},      {"Meilah", 22},
     {"Kinnim", 4},        {"Tamid", 9},         {"Midot", 5},         {"Niddah", 73}};
 
-void hebcal_dafyomi(date_t *greg_day) {
+void hebcal_dafyomi(const struct tm *greg_day) {
   int dafcnt = 40;
   int cno, dno, osday, nsday, total, count, j, cday, blatt;
-  date_t tmp_date;
+  struct tm tmp_date;
   char buffer[NM_LEN];
 
-  tmp_date.mm = 9;
-  tmp_date.dd = 11;
-  tmp_date.yy = 1923;
-  osday = greg2abs(tmp_date);
-  tmp_date.mm = 6;
-  tmp_date.dd = 24;
-  tmp_date.yy = 1975;
-  nsday = greg2abs(tmp_date);
-  cday = greg2abs(*greg_day);
+  tmp_date.tm_mon = 8;
+  tmp_date.tm_mday = 11;
+  tmp_date.tm_year = 1923 - 1900;
+  osday = greg2abs(&tmp_date);
+  tmp_date.tm_mon = 5;
+  tmp_date.tm_mday = 24;
+  tmp_date.tm_year = 1975 - 1900;
+  nsday = greg2abs(&tmp_date);
+  cday = greg2abs(greg_day);
 
   /*  No cycle, new cycle, old cycle */
   if (cday < osday)
@@ -98,6 +98,6 @@ void hebcal_dafyomi(date_t *greg_day) {
   }
 
   sprintf(buffer, _("Daf Yomi: %s %d"), _(shas[count].sname), blatt);
-  PrintGregDate(*greg_day);
+  PrintGregDate(greg_day);
   printf("%s\n", buffer);
 }

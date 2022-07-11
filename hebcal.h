@@ -77,7 +77,7 @@ typedef struct hebrew_year {
 #define CHANUKAH_CANDLES 64
 
 typedef struct hinode { /* holiday input structure */
-  date_t date;
+  struct hebdate date;
   char *name;
   unsigned int typeMask;
   struct hinode *next;
@@ -106,17 +106,17 @@ typedef struct hsnode { /* holiday storage structure */
 #define ZMAN_HAVDALAH (1 << 14)
 
 year_t yearData(int);
-date_t nextHebDate(date_t);
-date_t prevHebDate(date_t);
+struct hebdate *nextHebDate(const struct hebdate *);
+struct hebdate *prevHebDate(const struct hebdate *);
 struct hsnode *getHolstorep(void);
 int PushHoliday(struct hsnode *, struct hsnode **);
 void init_holidays(int);
-int getHebHolidays(date_t, struct hsnode **);
-void incHebGregDate(date_t *, date_t *, long *, int *, year_t *);
-void PrintGregDate(date_t);
+int getHebHolidays(const struct hebdate *, struct hsnode **);
+void incHebGregDate(struct hebdate *, struct tm *, long *, int *, year_t *);
+void PrintGregDate(const struct tm *);
 void main_calendar(long, long);
-void print_candlelighting_times(int, int, date_t);
-void print_sunrise_sunset(date_t);
+void print_candlelighting_times(int, int, const struct tm *);
+void print_sunrise_sunset(const struct tm *);
 void reset_Omer(int hYear);
 
 extern const char *license[];

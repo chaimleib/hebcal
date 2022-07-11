@@ -166,10 +166,11 @@ molad_t get_molad(int year, int month) {
   return retMolad;
 }
 
-date_t abs2hebrew(long d) {
+struct hebdate *abs2hebrew(long d) {
   static int mmap[] = {KISLEV, TEVET, SHVAT,   ADAR_I,  NISAN,   IYYAR,
                        SIVAN,  TAMUZ, TISHREI, TISHREI, TISHREI, CHESHVAN};
-  date_t hebdate, gregdate;
+  static struct hebdate hebdate;
+  struct tm gregdate;
   int day, month, year;
 
   if (d >= 10555144L) {
@@ -177,17 +178,17 @@ date_t abs2hebrew(long d) {
     exit(1);
   }
 
-  gregdate = abs2greg(d);
+  gregdate = *abs2greg(d);
   hebdate.dd = 1;
   hebdate.mm = 7;
-  year = 3760 + gregdate.yy;
+  year = 3760 + (gregdate.tm_year + 1900);
 
-  while (hebdate.yy = year + 1, d >= hebrew2abs(hebdate))
+  while (hebdate.yy = year + 1, d >= hebrew2abs(&hebdate))
     year++;
 
   if (year >= 4635 && year < 10666) {
     /* optimize search */
-    month = mmap[gregdate.mm - 1];
+    month = mmap[gregdate.tm_mon];
   } else {
     /* we're outside the usual range, so assume nothing about hebrew/gregorian calendar
      * drift... */
@@ -195,21 +196,21 @@ date_t abs2hebrew(long d) {
   }
 
   while (hebdate.mm = month, hebdate.dd = max_days_in_heb_month(month, year),
-         hebdate.yy = year, d > hebrew2abs(hebdate))
+         hebdate.yy = year, d > hebrew2abs(&hebdate))
     month = (month % MONTHS_IN_HEB(year)) + 1;
 
   hebdate.dd = 1;
 
-  day = (int)(d - hebrew2abs(hebdate) + 1L);
+  day = (int)(d - hebrew2abs(&hebdate) + 1L);
   if (day < 0) {
     fprintf(stderr, "assertion failure d < hebrew2abs(m,d,y) => %ld < %ld!\n", d,
-            hebrew2abs(hebdate));
+            hebrew2abs(&hebdate));
     exit(1);
   }
 
   hebdate.dd = day;
 
-  return hebdate;
+  return &hebdate;
 }
 
 /* Days from sunday prior to start of hebrew calendar to mean
@@ -247,24 +248,22 @@ static long int hebrew_elapsed_days(int year) {
 /*Absolute date of Hebrew DATE.
    The absolute date is the number of days elapsed since the (imaginary)
    Gregorian date Sunday, December 31, 1 BC. */
-long hebrew2abs(date_t d) {
+long hebrew2abs(const struct hebdate *d) {
   int m;
-  long tempabs = (long)d.dd;
-  long ret;
+  long tempabs = (long)(d->dd);
 
-  if (d.mm < TISHREI) {
-    for (m = TISHREI; m <= MONTHS_IN_HEB(d.yy); m++)
-      tempabs += (long)max_days_in_heb_month(m, d.yy);
+  if (d->mm < TISHREI) {
+    for (m = TISHREI; m <= MONTHS_IN_HEB(d->yy); m++)
+      tempabs += (long)max_days_in_heb_month(m, d->yy);
 
-    for (m = NISAN; m < d.mm; m++)
-      tempabs += (long)max_days_in_heb_month(m, d.yy);
+    for (m = NISAN; m < d->mm; m++)
+      tempabs += (long)max_days_in_heb_month(m, d->yy);
   } else {
-    for (m = TISHREI; m < d.mm; m++)
-      tempabs += (long)max_days_in_heb_month(m, d.yy);
+    for (m = TISHREI; m < d->mm; m++)
+      tempabs += (long)max_days_in_heb_month(m, d->yy);
   }
 
-  ret = hebrew_elapsed_days(d.yy) - 1373429L + tempabs;
-  return ret;
+  return hebrew_elapsed_days(d->yy) - 1373429L + tempabs;
 }
 
 /* Number of days in the hebrew YEAR */

@@ -11,11 +11,11 @@
 char *progname = "sanity-check.c";
 
 /* returns 1 */
-int reportIt(long d, date_t hebrew) {
-  date_t gregdate = abs2greg(d);
+int reportIt(long d, const struct hebdate *hebrew) {
+  struct tm gregdate = *abs2greg(d);
 
-  printf("%ld : [hm=%d hd=%d hy=%d], [gm=%d gd=%d gy=%d]\n", d, hebrew.mm, hebrew.dd,
-         hebrew.yy, gregdate.mm, gregdate.dd, gregdate.yy);
+  printf("%ld : [hm=%d hd=%d hy=%d], [gm=%d gd=%d gy=%d]\n", d, hebrew->mm, hebrew->dd,
+         hebrew->yy, gregdate.tm_mon + 1, gregdate.tm_mday, gregdate.tm_year + 1900);
   return 1;
 }
 
@@ -47,9 +47,9 @@ int main(int argc, char *argv[]) {
     }
 
     { /* reduce scope for hebrew */
-      date_t hebrew = abs2hebrew(d);
+      struct hebdate hebrew = *abs2hebrew(d);
       if (hebrew.dd < 0 || hebrew.mm < 0 || hebrew.yy < 0)
-        retVal += reportIt(d, hebrew);
+        retVal += reportIt(d, &hebrew);
     }
   }
   printf("found %d failure cases\n", retVal);
