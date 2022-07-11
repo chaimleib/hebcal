@@ -86,9 +86,7 @@ long int greg2abs(date_t d) /* "absolute date" */
  * The number of days elapsed between the Gregorian date 12/31/1 BC and DATE.
  * The Gregorian date Sunday, December 31, 1 BC is imaginary.
  */
-long int time2abs(const time_t *tp) {
-  return tm2abs(localtime(tp));
-}
+long int time2abs(const time_t *tp) { return tm2abs(localtime(tp)); }
 
 /*
  * The number of days elapsed between the Gregorian date 12/31/1 BC and DATE.

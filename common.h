@@ -24,18 +24,17 @@
 #define ADAR_I 12
 #define ADAR_II 13
 
-typedef struct hmonth
-{
-    const char *name;
+typedef struct hmonth {
+  const char *name;
 } hmonth_t;
 
-typedef hmonth_t hmonths_t [][15];
+typedef hmonth_t hmonths_t[][15];
 
 extern hmonths_t hMonths;
 
 typedef struct molad {
-    long int day;
-    int hour, chalakim;
+  long int day;
+  int hour, chalakim;
 } molad_t;
 
 molad_t get_molad(int, int);
@@ -44,7 +43,7 @@ long hebrew2abs(date_t);
 int days_in_heb_year(int);
 int long_cheshvan(int);
 int short_kislev(int);
-int max_days_in_heb_month(int,int);
+int max_days_in_heb_month(int, int);
 int lookup_hebrew_month(const char *);
 char *hebnum_to_string(char *buffer, int num);
 #endif
